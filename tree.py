@@ -24,7 +24,7 @@ class Tree(object):
                 (self.right._is_sorted() if self.right is not None else True)) 
 
     def add_mutable(self, *values):
-        def add_to(attr):
+        def add_to(attr, value):
             if getattr(self, attr) is None:
                 setattr(self, attr, Tree(value))
             else:
@@ -32,53 +32,63 @@ class Tree(object):
 
         for value in values:
             if value <= self.value:
-                add_to('left')
+                add_to('left', value)
             else:
-                add_to('right')
+                add_to('right', value)
 
-        assert self._is_sorted()
+        assert self._is_sorted(), "cannot add {} to {!r}".format(value, self)
         return self
 
     def del_mutable(self, value):
         tree, parent = self._find_with_parent(value)
         tree._delete(parent)
+
         assert self._is_sorted()
 
-    def _find_with_parent(value, parent = None):
+        return self
+
+    def _find_with_parent(self, value, parent = None):
         if value < self.value:
             if self.left is None:
                 raise Exception("Not found!")
-            return self.left.find_with_parent(value, self)
+            return self.left._find_with_parent(value, self)
         elif value > self.value:
             if self.right is None:
                 raise Exception("Not found!")
-            return self.right.find_with_parent(value, self)
+            return self.right._find_with_parent(value, self)
         else:
             return self, parent
 
-    def _delete(parent):
-        if parent is None:
-            raise Exception("Cannot delete top element!")
+    def _delete(self, parent):
+        def replace_with(tree):
+            self.value = tree.value
+            self.left = tree.left
+            self.right = tree.right
         if self.left is None and self.right is None:
             if parent.right == self:
                 parent.right = None
             else:
                 parent.left = None
         elif self.left is None:
-            self.value = self.right.value
-            self.left = self.right.left
-            self.right = self.right.right
+            replace_with(self.right)
         elif self.right is None:
-            self.value = self.left.value
-            self.left = self.left.left
-            self.right = self.left.left
+            replace_with(self.left)
         else:
-            predecessor, pred_parent = self._find_predecessor(value)
+            predecessor, pred_parent = self._find_predecessor(self.value)
+            self.value = predecessor.value
             predecessor._delete(pred_parent)
 
-    def _find_predecessor(value, parent=None):
+    def _find_predecessor(self, value, parent=None):
         if self.left is None:
-            return 
+            return None, self
+
+        def find_last_rightie(tree, parent):
+            if tree.right is None:
+                return tree, parent
+            else:
+                return find_last_rightie(tree.right, tree)
+
+        return find_last_rightie(self.left, self)
         
     def add_immutables(self, *values):
         res = self
