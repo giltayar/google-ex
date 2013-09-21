@@ -110,6 +110,48 @@ class Tree(object):
                     self.right.add_immutable(value) 
                     if self.right is not None else Tree(value))
 
+    def del_immutable(self, value):
+        if value < self.value:
+            return Tree(self.value,
+                    self.left.del_immutable(value) if self.left is not None else None,
+                    self.right)
+        elif value > self.value:
+            return Tree(self.value,
+                    self.left,
+                    self.right.del_immutable(value) if self.right is not None else None)
+        else:
+            if self.right is None:
+                return self.left
+            elif self.left is None:
+                return self.right
+            else:
+                return Tree(self.right.value,
+                        self.right._add_to_smallest_tree(self.left),
+                        self.right)
+
+    def _add_to_smallest_tree(tree_to_add):
+        if tree.right is not None:
+            tree.right._add_to_smallest_tree(tree_to_add)
+        else:
+            tree.right = tree_to_add
+
+    def as_balanced(self):
+        return Tree._as_balanced(self.as_list())
+
+    @staticmethod
+    def _as_balanced(l):
+        size = len(l)
+        if size == 1:
+            return Tree(l[0])
+        elif size == 2:
+            return Tree(l[0], None, Tree(l[1]))
+        else:
+            middle = size // 2
+
+            return Tree(l[middle],
+                    Tree._as_balanced(l[0:middle]),
+                    Tree._as_balanced(l[middle + 1:]))
+
     def __str__(self):
         return self.as_string(0) 
    
