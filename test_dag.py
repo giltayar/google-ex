@@ -10,4 +10,4 @@ class TestDag(unittest.TestCase):
         dag.add_edge(b, d, 4)
         dag.add_edge(c, d, 1)
 
-        self.assertEqual(dag.dsg(a, d), 5)
+        self.assertEqual(dag.dsg(a, d), (5, [a, c, d]))
