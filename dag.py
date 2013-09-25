@@ -12,7 +12,7 @@ class Dag:
     def add_vertices(self, n):
         res = []
         for i in range(n):
-            v = Dag.Vertice(len(self.vertices) + 1)
+            v = Dag.Vertice(len(self.vertices)) 
             res.append(v)
             self.vertices.add(v)
         return res
@@ -20,7 +20,7 @@ class Dag:
     def add_edge(self, s, t, w):
         s.edges[t] = w
     
-    def dsg(self, s, t):
+    def djikstra(self, s, t):
         def get_path(prevs):
             res = [t]
             curr = prevs.get(t)
@@ -38,7 +38,6 @@ class Dag:
         prevs = {}
         curr = None
         while unvisited:
-            print("unvisited={0}".format(unvisited))
             curr = find_smallest()
             unvisited.remove(curr)
             if curr == t:
@@ -47,7 +46,8 @@ class Dag:
                 return float('inf'), None
             for neighbor, weight in curr.edges.items():
                 neighbor_distance = distance_to_s.get(neighbor, float('inf'))
-                distance_to_s[neighbor] = min(neighbor_distance, distance_to_s[curr] + weight)
-                prevs[neighbor] = curr
+                if distance_to_s[curr] + weight < neighbor_distance:
+                    distance_to_s[neighbor] = distance_to_s[curr] + weight
+                    prevs[neighbor] = curr
 
         return float('inf')
